@@ -1,7 +1,13 @@
+using System.Xml;
+using FluentValidation;
+using FluentValidation.AspNetCore.Http;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.AddFluentValidationEndpointFilter();
+builder.Services.AddScoped<IValidator<Dto>, DtoValidator>();
 
 var app = builder.Build();
 
@@ -13,29 +19,20 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+app.MapPost("/", (Dto entity, CancellationToken cancellationToken) => TypedResults.Ok(entity))
+   .AddEndpointFilter<FluentValidationEndpointFilter>()
+;
 
 app.Run();
 
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+public record Dto
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public required string Name { get; init; }
+}
+public class DtoValidator : AbstractValidator<Dto>
+{
+    public DtoValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty();
+    }
 }
