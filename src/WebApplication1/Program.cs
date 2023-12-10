@@ -1,9 +1,7 @@
-using System.Xml;
 using FluentValidation;
 using FluentValidation.AspNetCore.Http;
-using Microsoft.AspNetCore.Diagnostics;
+using WebApplication1.EndPoints;
 using WebApplication1.Handlers;
-using static System.Net.Mime.MediaTypeNames;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,27 +20,25 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    _ = app.UseSwagger();
+    _ = app.UseSwaggerUI();
 }
 app.UseExceptionHandler();
 app.UseHttpsRedirection();
 
-
-
-app.MapPost("/", (Dto entity, CancellationToken cancellationToken) => TypedResults.Ok(entity))
+app.MapPost("/", EndpointV1.NewMethod)
    .AddEndpointFilter<FluentValidationEndpointFilter>();
 
 app.Run();
 
 public record Dto
 {
+    public string? Id { get; init; }
     public required string Name { get; init; }
 }
 public class DtoValidator : AbstractValidator<Dto>
 {
-    public DtoValidator()
-    {
-        RuleFor(x => x.Name).NotEmpty();
-    }
+    public DtoValidator() => RuleFor(x => x.Name).NotEmpty();
 }
+
+

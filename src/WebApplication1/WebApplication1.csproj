@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Echo.Process" Version="2.2.1-beta" />
     <PackageReference Include="FluentValidation" Version="11.8.1" />
     <PackageReference Include="ForEvolve.FluentValidation.AspNetCore.Http" Version="1.0.26" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
